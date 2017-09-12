@@ -774,14 +774,18 @@ end
 function PAB:PARTY_MEMBERS_CHANGED()
 	if not pGUID then pGUID = UnitGUID("player") end
 	if not pName then pName = UnitName("player") end
-	self:UpdateAnchors(false)
+	self:UpdateAnchors(true)
 end
 
 function PAB:PLAYER_ENTERING_WORLD()
-	if InArena() then self:StopAllIcons() end -- Cooldowns reset when joining arena
+	if InArena() then
+		-- Cooldowns reset when joining arena
+		self:StopAllIcons()
+		self:UpdateAnchors(true)
+	end
 	if not pGUID then pGUID = UnitGUID("player") end
 	if not pName then pName = UnitName("player") end
-	self:UpdateAnchors(false)
+	self:UpdateAnchors(true)
 end
 
 function PAB:CheckAbility(anchor,ability,cooldown,pIndex)
@@ -833,7 +837,7 @@ local function PAB_OnUpdate(self,elapsed)
 		for k,icon in ipairs(iconlist) do
 			if icon.active then
 				icon.timeleft = icon.starttime + icon.cooldown - GetTime()
-				if icon.timeleft <= 0 then
+				if icon.timeleft <= 0 and icon.GUID and icon.ability then
 					if db.hidden then icon:Hide() end
 					activeGUIDS[icon.GUID][icon.ability] = nil
 					icon.active = nil
