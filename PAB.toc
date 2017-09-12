@@ -1,0 +1,13 @@
+## Interface: 30000
+## Author: Kolletiv
+## Title: Party Ability Bars
+## SavedVariables: PABDB
+## X-Curse-Packaged-Version: 1.12
+## X-Curse-Project-Name: Party Ability Bars
+## X-Curse-Project-ID: pab
+## X-Curse-Repository-ID: wow/pab/mainline
+
+libs\LibStub\LibStub.lua
+libs\LibSimpleOptions-1.0\lib.xml
+
+PAB.lua
