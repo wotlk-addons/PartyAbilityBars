@@ -1,6 +1,10 @@
 -- TODO
 -- Capture cooldowns from combat log and player, then set them
 
+
+-- UPDATE_BATTLEFIELD_STATUS
+
+
 local lower = string.lower
 local match = string.match
 local remove = table.remove
@@ -43,88 +47,112 @@ local iconPaths = {
 		[42292] = 120, -- PvP Trinket
 		[59752] = 120, -- Every Man for Himself
 		[71607] = 120, -- Bauble of True Blood
+		[7744] = 120,  -- Will of the Forsaken
+		-- Druid
 		[29166] = 180, -- Innervate
-		[22812] = 60, -- Barkskin
-		[8983] = 60, -- Bash
-		[53201] = 60, -- Starfall
+		[22812] = 60,  -- Barkskin
+		[8983] = 60,   -- Bash
+		[53201] = 60,  -- Starfall
 		[50334] = 180, -- Berserk
 		[61336] = 180, -- Survival Instincts
-		[16979] = 15, -- Feral Charge - Bear
-		[18562] = 13, -- Swiftmend
+		[16979] = 15,  -- Feral Charge - Bear
+		[18562] = 13,  -- Swiftmend
 		[17116] = 180, -- Nature's Swiftness
-		[19503] = 30, -- Scatter Shot
-		[60192] = 28, -- Freezing Arrow
-		[13809] = 28, -- Frost Trap
-		[14311] = 28, -- Freezing Trap
+		-- Hunt
+		[19503] = 30,  -- Scatter Shot
+		[60192] = 28,  -- Freezing Arrow
+		[13809] = 28,  -- Frost Trap
+		[14311] = 28,  -- Freezing Trap
 		[19574] = 120, -- Bestial Wrath
-		[34490] = 20, -- Silencing Shot
+		[34490] = 20,  -- Silencing Shot
 		[23989] = 180, -- Readiness
-		[19263] = 90, -- Deterrence
-		[67481] = 60, -- Roar of Sacrifice
-		[53271] = 60, -- Master's Call
-		[1953] = 15, -- Blink
-		[2139] = 24, -- Counterspell
-		[44572] = 30, -- Deep Freeze
+		[19263] = 90,  -- Deterrence
+		[67481] = 60,  -- Roar of Sacrifice
+		[53271] = 60,  -- Master's Call
+		[49012] = 30,  -- Wyvern Sting
+		-- Mage
+		[1953] = 15,   -- Blink
+		[2139] = 24,   -- Counterspell
+		[44572] = 30,  -- Deep Freeze
 		[12051] = 240, -- Evocation
 		[45438] = 300, -- Ice Block
 		[11958] = 384, -- Cold Snap
-		[10308] = 40, -- Hammer of Justice
-		[10308] = 60, -- Repentance
-		[1044] = 25, -- Hand of Freedom
-		[54428] = 60, -- Divine Plea
+		[12043] = 60,  -- Presence of Mind
+		[11129] = 120, -- Combustion
+		[42950] = 20,  -- Dragon's Breath
+		-- Pal
+		[10308] = 40,  -- Hammer of Justice
+		[10308] = 60,  -- Repentance
+		[1044] = 25,   -- Hand of Freedom
+		[54428] = 60,  -- Divine Plea
 		[31821] = 120, -- Aura Mastery
 		[64205] = 120, -- Divine Sacrifice
-		[6940] = 120, -- Hand of Sacrifice
+		[6940] = 120,  -- Hand of Sacrifice
 		[10278] = 180, -- Hand of Protection
-		[642] = 300, -- Divine Shield
-		[10890] = 24, -- Psychic Scream
+		[642] = 300,   -- Divine Shield
+		[66008] = 60,  -- Repentance
+		[48825] = 5,   -- Holy Shock
+		[48827] = 30,  -- Avenger's Shield
+		-- Priest
+		[10890] = 24,  -- Psychic Scream
 		[34433] = 300, -- Shadowfiend
 		[33206] = 144, -- Pain Suppression
 		[64044] = 120, -- Psychic Horror
-		[48158] = 12, -- Shadow World: Death
-		[15487] = 45, -- Silence
-		[47585] = 75, -- Dispersion
-		[1766] = 10, -- Kick
-		[8643] = 20, -- Kidney Shot
-		[31224] = 60, -- Cloak of Shadows
-		[51722] = 60, -- Dismantle
-		[2094] = 120, -- Blind
+		[48158] = 12,  -- Shadow World: Death
+		[15487] = 45,  -- Silence
+		[47585] = 75,  -- Dispersion
+		-- Rogue
+		[1766] = 10,   -- Kick
+		[8643] = 20,   -- Kidney Shot
+		[31224] = 60,  -- Cloak of Shadows
+		[51722] = 60,  -- Dismantle
+		[2094] = 120,  -- Blind
 		[26889] = 120, -- Vanish
 		[14185] = 300, -- Preparation
-		[51713] = 60, -- Shadow Dance
-		[57994] = 6, -- Wind Shear
-		[51514] = 45, -- Hex
+		[51713] = 60,  -- Shadow Dance
+		[51690] = 120, -- Killing Spree
+		[14177] = 180, -- Cold Blood
+		-- Sham
+		[57994] = 6,   -- Wind Shear
+		[51514] = 45,  -- Hex
 		[16188] = 120, -- Nature's Swiftness
-		[8177] = 15, -- Grounding Totem
-		[19647] = 24, -- Spell Lock
+		[8177] = 15,   -- Grounding Totem
+		-- Lock
+		[19647] = 24,  -- Spell Lock
 		[17925] = 120, -- Death Coil
 		[18708] = 180, -- Fel Domination
-		[48011] = 8, -- Devour Magic
-		[48020] = 30, -- Demonic Circle: Teleport
-		[47847] = 20, -- Shadowfury
-		[6552] = 10, -- Pummel
-		[72] = 12, -- Shield Bash
-		[11578] = 13, -- Charge
-		[47996] = 15, -- Intercept
+		[48011] = 8,   -- Devour Magic
+		[48020] = 30,  -- Demonic Circle: Teleport
+		[47847] = 20,  -- Shadowfury
+		-- War
+		[6552] = 10,   -- Pummel
+		[72] = 12,     -- Shield Bash
+		[11578] = 13,  -- Charge
+		[47996] = 15,  -- Intercept
 		[46924] = 90,  -- Bladestorm
-		[871] = 300, -- Shield Wall
-		[2565] = 60, -- Shield Block
-		[2565] = 60, -- Shield Block
-		[676] = 60, -- Disarm
-		[47528] = 10, -- Mind Freeze
-		[47481] = 20, -- Gnaw
+		[871] = 300,   -- Shield Wall
+		[2565] = 60,   -- Shield Block
+		[2565] = 60,   -- Shield Block
+		[676] = 60,    -- Disarm
+		[12809] = 30,  -- Concussion Blow
+		[46968] = 17,  -- Shockwave
+		-- DK
+		[47528] = 10,  -- Mind Freeze
+		[47481] = 20,  -- Gnaw
 		[48743] = 120, -- Death Pact
 		[49206] = 180, -- Summon Gargoyle
 		[51052] = 120, -- Anti-Magic Zone
-		[49576] = 35, -- Death Grip
-		[48707] = 45, -- Anti-Magic Shell
+		[49576] = 35,  -- Death Grip
+		[48707] = 45,  -- Anti-Magic Shell
 		[47476] = 120, -- Strangulate
 		[49039] = 120, -- Lichborne
-		[7744] = 120, -- Will of the Forsaken
+		[49203] = 60,  -- Hungering Cold
+		[51271] = 60,  -- Unbreakable Armor
 }
 for k in pairs(iconPaths) do _iconPaths[GetSpellInfo(k)] = select(3,GetSpellInfo(k)) end
 iconPaths = _iconPaths
 iconPaths[GetSpellInfo(71607)] = "Interface\\Icons\\inv_jewelcrafting_gem_28"
+iconPaths[GetSpellInfo(42292)] = "Interface\\Icons\\Inv_jewelry_trinketpvp_02"
 
 local specAbilities = {
 	["ROGUE"] = {
@@ -220,7 +248,7 @@ local specAbilities = {
 			talentGroup = 2,
 			index = 20,
 		},
-		[44572] = { -- Dragon's Breath
+		[42950] = { -- Dragon's Breath
 			talentGroup = 2,
 			index = 25,
 		},
@@ -260,11 +288,23 @@ local specAbilities = {
 			talentGroup = 3,
 			index = 13,
 		},
+		[51490] = { -- Thunderstorm
+			talentGroup = 1,
+			index = 25,
+		},
+		[30823] = { -- Shamanistic Rage
+			talentGroup = 2,
+			index = 26
+		},
 	},
 	["WARLOCK"] = {
 		[47847] = { -- Shadowfury
 			talentGroup = 3,
 			index = 23,
+		},
+		[18708] = { -- Fel Domination
+			talentGroup = 2,
+			index = 10,
 		},
 	},
 	["WARRIOR"] = {
@@ -276,7 +316,7 @@ local specAbilities = {
 			talentGroup = 3,
 			index = 14,
 		},
-		[46968] = { -- Shockwave : cd -3 ?
+		[46968] = { -- Shockwave
 			talentGroup = 3,
 			index = 27,
 		},
@@ -329,6 +369,7 @@ local defaultAbilities = {
 		[19263] = 90,  -- Deterrence
 		[67481] = 60,  -- Roar of Sacrifice
 		[53271] = 60,  -- Master's Call
+		[49012] = 30,  -- Wyvern Sting
 	},
 	["MAGE"] = 	{
 		[1953] = 15,   -- Blink
@@ -337,6 +378,9 @@ local defaultAbilities = {
 		[12051] = 240, -- Evocation
 		[45438] = 300, -- Ice Block
 		[11958] = 384, -- Cold Snap
+		[12043] = 60, -- Presence of Mind
+		[11129] = 120, -- Combustion
+		[42950] = 20, -- Dragon's Breath
 	},
 	["PALADIN"] = {
 		[10308] = 40,  -- Hammer of Justice
@@ -347,8 +391,10 @@ local defaultAbilities = {
 		[642] = 300,   -- Divine Shield
 		[71607] = 120, -- Bauble of True Blood
 		[31821] = 120, -- Aura Mastery
-		[66008] = 60, -- Repentance
+		[66008] = 60,  -- Repentance
 		[64205] = 120, -- Divine Sacrifice
+		[48825] = 5,   -- Holy Shock
+		[48827] = 30,  -- Avenger's Shield
 	},
 	["PRIEST"] = {
 		[10890] = 24,  -- Psychic Scream
@@ -377,6 +423,8 @@ local defaultAbilities = {
 		[16188] = 120, -- Nature's Swiftness
 		[8177] = 15,   -- Grounding Totem
 		[71607] = 120, -- Bauble of True Blood
+		[51490] = 35, -- Thunderstorm (45s - 10s glyph)
+		[30823] = 60, -- Shamanistic Rage
 	},
 	["WARLOCK"] = {
 		[19647] = 24,  -- Spell Lock
@@ -385,6 +433,7 @@ local defaultAbilities = {
 		[48011] = 8,   -- Devour Magic
 		[48020] = 30,  -- Demonic Circle: Teleport
 		[47847] = 20,  -- Shadowfury
+		[18708] = 180, -- Fel Domination
 	},
 	["WARRIOR"] = {
 		[6552] = 10,   -- Pummel
@@ -395,6 +444,8 @@ local defaultAbilities = {
 		[871] = 300,   -- Shield Wall
 		[2565] = 60,   -- Shield Block
 		[676] = 60,    -- Disarm
+		[12809] = 30,  -- Concussion Blow
+		[46968] = 17,  -- Shockwave
 	},
 	["DEATHKNIGHT"] = {
 		[47528] = 10,  -- Mind Freeze
@@ -406,6 +457,8 @@ local defaultAbilities = {
 		[48707] = 45,  -- Anti-Magic Shell
 		[47476] = 120, -- Strangulate
 		[49039] = 120, -- Lichborne
+		[49203] = 60,  -- Hungering Cold
+		[51271] = 60,  -- Unbreakable Armor
 	},
 	["Scourge"] = {
 		[7744] = 120, -- Will of the Forsaken
@@ -507,6 +560,8 @@ local cooldownResetters = {
 		[11305] = 1, -- Sprint
 		[26889] = 1, -- Vanish
 		[36554] = 1, -- Shadowstep
+		[1766] = 10, -- Kick
+		[51722] = 60,-- Dismantle
 	},
 	[23989] = { -- Readiness
 		[19503] = 1, -- Scatter Shot
@@ -517,6 +572,7 @@ local cooldownResetters = {
 		[34490] = 1, -- Silencing Shot
 		[19263] = 1, -- Deterrence
 		[53271] = 1, -- Master's Call
+		[49012] = 1, -- Wyvern Sting
 	},
 }
 
@@ -559,7 +615,11 @@ function PAB:LoadPositions()
 			local x = db.positions[k].x
 			local y = db.positions[k].y
 			local scale = anchors[k]:GetEffectiveScale()
-			anchors[k]:SetPoint("TOPLEFT", UIParent,"TOPLEFT", x/scale, y/scale)
+			if db.movable then
+				anchors[k]:SetPoint("TOPLEFT", UIParent,"TOPLEFT", x/scale, y/scale)
+			else
+				anchors[k]:SetPoint("TOPLEFT", "PartyMemberFrame"..k,"TOPLEFT", db.xanchor, db.yanchor)
+			end
 		else
 			anchors[k]:SetPoint("CENTER", UIParent, "CENTER")
 		end
@@ -667,20 +727,8 @@ function PAB:UpdateAnchors(updateIcons)
 		local anchor = anchors[i]
 		anchor.GUID = UnitGUID("party"..i)
 		anchor.class = select(2,UnitClass("party"..i))
-		local abilities = db.abilities[class]
-		-- uses races as well as classes, no unique combinations of class+race like "Nightelf Priest" possible
+		-- uses races as well as classes, no unique combinations of class+race like "Nightelf Priest" possible tho
 		anchor.race = select(2,UnitRace("party"..i))
-		local boundTo = {}
-		local abilities = { }
-		for k, v in pairs(db.abilities) do
-			if k == class or k == anchor.race then
-				for ke, va in pairs(v) do
-					abilities[ke]=va
-					-- V: keep track of what is from what
-					boundTo[ke] = k
-				end
-			end
-		end
 		if updateIcons then
 			for i = 1, #anchor.icons do
 				anchor.icons[i]:Hide()
@@ -690,32 +738,17 @@ function PAB:UpdateAnchors(updateIcons)
 			anchor.icons = {}
 		end
 		local numIcons = 1
-		if not anchor.spec and not anchor.inspectFrame and CanInspect("party"..i) then
-			local _self = self
-			local f = CreateFrame("Frame")
-			anchor.inspectFrame = f
-			f:SetScript("OnEvent", function (self, event, ...)
-				f:UnregisterEvent("INSPECT_TALENT_READY")
-				local specSpells = specAbilities[anchor.class]
-				if specSpells then
-					anchor.spec = {}
-					for ability, spell in pairs(specSpells) do
-						local hasTalent = select(5,
-							GetTalentInfo(spell.talentGroup, spell.index, true)
-						) > 0
-						anchor.spec[ability] = hasTalent
-					end
-					PAB:UpdateAnchors(true)
-				end
-				ClearInspectPlayer()
-			end)
-			f:RegisterEvent("INSPECT_TALENT_READY")
-			NotifyInspect("party"..i)
+		for ability,cooldown in pairs(db.abilities[anchor.race]) do
+			local enabled = db.enabledCooldowns[anchor.race]
+			if enabled then
+				self:UpdateAnchorIcon(anchor, numIcons, ability, cooldown)
+				numIcons = numIcons + 1
+			end
 		end
 		local specSpells = specAbilities[anchor.class]
-		for ability,cooldown in pairs(abilities) do
+		for ability,cooldown in pairs(db.abilities[class]) do
 			-- if it's not a talent, or we have the talent
-			local enabled = db.enabledCooldowns[boundTo[ability]][ability]
+			local enabled = db.enabledCooldowns[class][ability]
 			if enabled and not specSpells[ability] or anchor.spec and anchor.spec[ability] then
 				self:UpdateAnchorIcon(anchor, numIcons, ability, cooldown)
 				numIcons = numIcons + 1
@@ -768,24 +801,26 @@ function PAB:ApplyAnchorSettings()
 		end
 	end	
 	
-	if db.lock then PABAnchor:Hide() else PABAnchor:Show() end
+	if db.lock or not db.movable then PABAnchor:Hide() else PABAnchor:Show() end
 end
 
 function PAB:PARTY_MEMBERS_CHANGED()
 	if not pGUID then pGUID = UnitGUID("player") end
 	if not pName then pName = UnitName("player") end
-	self:UpdateAnchors(true)
+	inspectData = {}
+	self:UpdateAnchors(false)
 end
 
 function PAB:PLAYER_ENTERING_WORLD()
 	if InArena() then
 		-- Cooldowns reset when joining arena
 		self:StopAllIcons()
-		self:UpdateAnchors(true)
+		-- V: reset spec info
+		inspectData = {}
 	end
 	if not pGUID then pGUID = UnitGUID("player") end
 	if not pName then pName = UnitName("player") end
-	self:UpdateAnchors(true)
+	self:UpdateAnchors(false)
 end
 
 function PAB:CheckAbility(anchor,ability,cooldown,pIndex)
@@ -816,8 +851,11 @@ function PAB:UNIT_SPELLCAST_SUCCEEDED(unit,ability)
 	if unit == "player" then return end
 	local pIndex = match(unit,"party[pet]*([1-4])")
 	if pIndex and ability then
-		local _,class = UnitClass("party"..pIndex)
-		self:CheckAbility(anchors[tonumber(pIndex)],ability,db.abilities[class][ability],pIndex) 
+		local actualUnit = "party"..pIndex -- don't query pet
+		local _,class = UnitClass(actualUnit)
+		local _,race = UnitRace(actualUnit)
+		local cooldown = db.abilities[class][ability] or db.abilities[race][ability]
+		self:CheckAbility(anchors[tonumber(pIndex)],ability,cooldown,pIndex) 
 	end
 end
 
@@ -837,11 +875,13 @@ local function PAB_OnUpdate(self,elapsed)
 		for k,icon in ipairs(iconlist) do
 			if icon.active then
 				icon.timeleft = icon.starttime + icon.cooldown - GetTime()
-				if icon.timeleft <= 0 and icon.GUID and icon.ability then
-					if db.hidden then icon:Hide() end
-					activeGUIDS[icon.GUID][icon.ability] = nil
-					icon.active = nil
-				end
+                if icon.timeleft <= 0 then
+                    if db.hidden then icon:Hide() end
+                    if icon.GUID and icon.ability and activeGUIDS[icon.GUID] then
+                      activeGUIDS[icon.GUID][icon.ability] = nil
+                    end
+                    icon.active = nil
+                end
 			end
 		end
 		
@@ -858,6 +898,71 @@ local function PAB_OnUpdate(self,elapsed)
 		
 		time = 0
 	end
+
+	PAB:QuerySpecInfo()
+end
+
+local inspectData = {
+	frame = nil,
+	current = nil
+}
+
+-- V: function called every tick that tries to query spec info
+function PAB:QuerySpecInfo()
+	if not inspectData.frame then
+		inspectData.frame = CreateFrame("Frame")
+		inspectData.frame:SetScript("OnEvent", function (self, event, ...)
+			if not inspectData.current then return end
+			local anchor = anchors[inspectData.current]
+			if not anchor or not anchor.class then
+				-- anchor not yet created
+				inspectData.current = nil
+				return
+			end
+			print("class of "..inspectData.current.."="..anchor.class)
+			local specSpells = specAbilities[anchor.class]
+			if specSpells then
+				anchor.spec = {}
+				-- V: foundATalent is useful to circumvent a bug where we inspect
+				--    someone before their talents loaded
+				local foundATalent = false
+				for ability, spell in pairs(specSpells) do
+					local hasTalent = select(5,
+						GetTalentInfo(spell.talentGroup, spell.index, true, false, GetActiveTalentGroup(true))
+					) > 0
+					foundATalent = foundATalent or hasTalent
+					anchor.spec[ability] = hasTalent
+				end
+				-- V: we found no talent, that's weird. Let's remove anchor.spec so we inspect them again
+				if not foundATalent then
+					print("i need to check again for:"..inspectData.current)
+					anchor.spec = nil
+				else
+					print("i got stuff for:"..inspectData.current)
+				end
+
+				PAB:UpdateAnchors(true)
+			end
+			ClearInspectPlayer()
+			inspectData.current = nil
+		end)
+		inspectData.frame:RegisterEvent("INSPECT_TALENT_READY")
+	end
+
+	-- if we're currently awaiting an INSPECT_TALENT_READY
+	if inspectData.current then return end
+
+	for i=1, GetNumPartyMembers() do
+		local anchor = anchors[i]
+		if not anchor then
+			print("no anchor for"..i)
+		end
+		if not anchor.spec and CanInspect("party"..i) then
+			inspectData.current = i
+			NotifyInspect("party"..i)
+			break
+		end
+	end
 end
 
 function PAB:StopAllIcons()
@@ -872,12 +977,13 @@ local function PAB_OnLoad(self)
 	self:SetScript("OnEvent",function(self,event,...) if self[event] then self[event](self,...) end end)
 	
 	PABDB = PABDB or {
-		abilities = defaultAbilities,
 		scale = 0.9,
 		lock = true,
 		arena = false,
-		hidden = false,
+		hidden = true,
 		iconsperline = 0,
+		xanchor = -88,
+		yanchor = 17,
 		positions = {
 			{
 				x = 1,
@@ -898,6 +1004,9 @@ local function PAB_OnLoad(self)
 		},
 		enabledCooldowns = allCooldownIds
 	}
+	PABDB.abilities = defaultAbilities -- V: always keep ALL the abilities
+	PABDB.xanchor = PABDB.xanchor or -88
+	PABDB.yanchor = PABDB.yanchor or 17
 	db = PABDB
 
 	self:CreateAnchors()
@@ -907,7 +1016,7 @@ local function PAB_OnLoad(self)
 	
 	self:SetScript("OnUpdate",PAB_OnUpdate)
 	
-	print("Party Ability Bars by Kollektiv. enhancements by Lawz. Talent detection & configuration by Vendethiel. Type /pab to open options")
+	print("Party Ability Bars by Kollektiv. Enhancements by Lawz and Vendethiel. Type /pab to open options")
 end
 
 function PAB:FindAbilityIcon(ability)
@@ -955,78 +1064,119 @@ function PAB:CreateOptions()
 	local scale = panel:MakeSlider(
 		'name', 'Scale',
 		'description', 'Adjust the scale of icons',
-		'minText', '0.1',
-		'maxText', '5',
-		'minValue', 0.1,
-		'maxValue', 5,
-		'step', 0.05,
+		'minText', '0.5',
+		'maxText', '2',
+		'minValue', 0.5,
+		'maxValue', 2,
+		'step', 0.01,
 		'default', 1,
 		'current', db.scale,
 		'setFunc', function(value) db.scale = value; PAB:ApplyAnchorSettings() end,
 		'currentTextFunc', function(value) return string.format("%.2f",value) end)
 	scale:SetPoint("TOPLEFT",subText,"TOPLEFT",16,-32)
---[[	
-	local rows = panel:MakeSlider(
-		'name', 'Row',
-		'description', 'Set the number of icons per row',
-		'minText', '1',
-		'maxText', '10',
-		'minValue', 1,
-		'maxValue', 10,
-		'step', 1,
-		'default', 3,
-		'current', db.rows,
-		'setFunc', function(value) db.rows = value; PAB:ApplyAnchorSettings() end,
-		'currentTextFunc', function(value) return value end)
-	rows:SetPoint("TOPLEFT",subText,"TOPLEFT",100,-70)  
-]]	
-	local lock = panel:MakeToggle(
-	     'name', 'Lock',
-	     'description', 'Show/hide anchors',
-	     'default', false,
-	     'getFunc', function() return db.lock end,
-	     'setFunc', function(value) db.lock = value; PAB:ApplyAnchorSettings() end)
-	     
-	lock:SetPoint("TOP",panel,"TOP",10,-36)
-	
+
 	local arena = panel:MakeToggle(
 	     'name', 'Arena',
 	     'description', 'Show in arena only',
 	     'default', false,
 	     'getFunc', function() return db.arena end,
 	     'setFunc', function(value) db.arena = value; PAB:ApplyAnchorSettings() end)
-	arena:SetPoint("TOP",lock,"BOTTOM",0,-5)
+	arena:SetPoint("TOP",panel,"TOP",10,-36)
 	
 	local hidden = panel:MakeToggle(
-	     'name', 'Hidden',
-	     'description', 'Show icon only when on cooldown',
+	    'name', 'Hidden',
+	    'description', 'Show icon only when on cooldown',
+	    'default', false,
+	    'getFunc', function() return db.hidden end,
+	    'setFunc', function(value) db.hidden = value; PAB:ApplyAnchorSettings() end)
+	hidden:SetPoint("LEFT",arena,"RIGHT",50,0)
+
+	local ApplyMovableFunction
+	local movable = panel:MakeToggle(
+	    'name', 'Movable',
+	    'description', 'Movable anchors',
+	    'default', false,
+	    'getFunc', function() return db.movable end,
+	    'setFunc', function(value)
+	    	db.movable = value
+	    	ApplyMovableFunction()
+	    	PAB:ApplyAnchorSettings()
+	    	PAB:LoadPositions()
+	    end)
+	movable:SetPoint("TOPLEFT",arena,"BOTTOMLEFT",0,-5)
+
+	local lock = panel:MakeToggle(
+	     'name', 'Lock',
+	     'description', 'Show/hide anchors',
 	     'default', false,
-	     'getFunc', function() return db.hidden end,
-	     'setFunc', function(value) db.hidden = value; PAB:ApplyAnchorSettings() end)
-	hidden:SetPoint("LEFT",lock,"RIGHT",50,0)
+	     'getFunc', function() return db.lock end,
+	     'setFunc', function(value) db.lock = value; PAB:ApplyAnchorSettings() end)	     
+	lock:SetPoint("LEFT",movable,"RIGHT",50,0)
 
-	local iconsperline = CreateEditBox("Icons per line", panel, 50, 25)
-	iconsperline:SetPoint("LEFT", arena, "RIGHT", 50, 0)
-	iconsperline:SetMultiLine(false)
-	iconsperline:SetNumber(db.iconsperline)
-	iconsperline:SetCursorPosition(0)
-	iconsperline:SetScript("OnTextChanged", function (self, isUserinput)
-		if not isUserinput then return end
-		local num = iconsperline:GetNumber()
-		-- force numerical value. Does not infinite loop since we check for isUserinput
-		iconsperline:SetNumber(num)
-		if db.iconsperline ~= num then
-			db.iconsperline = num
-			PAB:UpdateAnchors(true)
+	local iconsperline = panel:MakeSlider(
+		'name', 'Icons per line (0 = all)',
+		'description', 'Adjust x anchor',
+		'minText', '0',
+		'maxText', '10',
+		'minValue', 0,
+		'maxValue', 10,
+		'step', 	1,
+		'default', 	0,
+		'current', db.iconsperline,
+		'setFunc', function(value) db.iconsperline = value; PAB:UpdateAnchors(true) end,
+		'currentTextFunc', function(value) return string.format("%d",value) end)
+	iconsperline:SetPoint("TOPLEFT", movable, "BOTTOMLEFT", 0, -20)
+		
+	local xanchor = panel:MakeSlider(
+		'name', 'x anchor',
+		'description', 'Adjust x anchor',
+		'minText', '-100',
+		'maxText', '100',
+		'minValue', -100,
+		'maxValue', 100,
+		'step', 	1,
+		'default', 	0,
+		'current', db.xanchor,
+		'setFunc', function(value) db.xanchor = value; PAB:LoadPositions(true) end,
+		'currentTextFunc', function(value) return string.format("%d",value) end)
+	xanchor:SetPoint("TOPLEFT", iconsperline, "BOTTOMLEFT", 0, -30)
+	
+	local yanchor = panel:MakeSlider(
+		'name', 'y anchor',
+		'description', 'Adjust x anchor',
+		'minText', '-100',
+		'maxText', '100',
+		'minValue', -100,
+		'maxValue', 100,
+		'step', 	1,
+		'default', 	0,
+		'current', db.yanchor,
+		'setFunc', function(value) db.yanchor = value; PAB:LoadPositions(true) end,
+		'currentTextFunc', function(value) return string.format("%d",value) end)
+	yanchor:SetPoint("TOPLEFT", xanchor, "BOTTOMLEFT", 0, -30)
+
+	-- V: when "movable gets toggled"
+	ApplyMovableFunction = function()
+		if db.movable then
+			lock:Show()
+
+			xanchor:Hide()
+			yanchor:Hide()
+		else
+			lock:Hide()
+
+			xanchor:Show()
+			yanchor:Show()
 		end
-	end)
+	end
 
+	ApplyMovableFunction()
 
-	local title2, subText2 = panel:MakeTitleTextAndSubText("Ability editor","Change what party member abilities are tracked")
+	local title2, subText2 = panel:MakeTitleTextAndSubText("Ability editor","Abilities tracked :")
 	title2:ClearAllPoints()
-	title2:SetPoint("LEFT",panel,"LEFT",16,80)
+	title2:SetPoint("LEFT",panel,"LEFT",16,100)
 	subText2:ClearAllPoints()
-	subText2:SetPoint("TOPLEFT",title2,"BOTTOMLEFT",0,-8)
+	subText2:SetPoint("TOPLEFT",title2,"BOTTOMLEFT",25,-8)
 	
 	self:CreateAbilityEditor()
 
@@ -1114,7 +1264,7 @@ function PAB:CreateAbilityEditor()
 	
 	scrollframe:SetWidth(150); 
 	scrollframe:SetHeight(200)
-	scrollframe:SetPoint('LEFT',16,-45)
+	scrollframe:SetPoint('LEFT',5,-60)
 	scrollframe:SetBackdrop(backdrop)
 	scrollframe:SetBackdropColor(.6,.6,.6,0.25)
 	scrollframe:SetScript("OnVerticalScroll", function(self,offset) PAB:OnVerticalScroll(offset,16) end)
@@ -1157,7 +1307,7 @@ function PAB:CreateAbilityEditor()
 			PAB:UpdateScrollBar()
 		end
 	)
-	dropdown:SetPoint("TOPLEFT",scrollframe,"TOPRIGHT",20, -20)
+	dropdown:SetPoint("LEFT",scrollframe,"RIGHT",20, 0)
 end
 
 PAB:RegisterEvent("VARIABLES_LOADED")
