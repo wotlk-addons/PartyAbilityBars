@@ -919,7 +919,6 @@ function PAB:QuerySpecInfo()
 				inspectData.current = nil
 				return
 			end
-			print("class of "..inspectData.current.."="..anchor.class)
 			local specSpells = specAbilities[anchor.class]
 			if specSpells then
 				anchor.spec = {}
@@ -935,10 +934,7 @@ function PAB:QuerySpecInfo()
 				end
 				-- V: we found no talent, that's weird. Let's remove anchor.spec so we inspect them again
 				if not foundATalent then
-					print("i need to check again for:"..inspectData.current)
 					anchor.spec = nil
-				else
-					print("i got stuff for:"..inspectData.current)
 				end
 
 				PAB:UpdateAnchors(true)
@@ -954,9 +950,7 @@ function PAB:QuerySpecInfo()
 
 	for i=1, GetNumPartyMembers() do
 		local anchor = anchors[i]
-		if not anchor then
-			print("no anchor for"..i)
-		end
+		if not anchor then return end
 		if not anchor.spec and CanInspect("party"..i) then
 			inspectData.current = i
 			NotifyInspect("party"..i)
