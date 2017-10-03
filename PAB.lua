@@ -749,7 +749,7 @@ function PAB:UpdateAnchors(updateIcons)
 		for ability,cooldown in pairs(db.abilities[class]) do
 			-- if it's not a talent, or we have the talent
 			local enabled = db.enabledCooldowns[class][ability]
-			if enabled and not specSpells[ability] or anchor.spec and anchor.spec[ability] then
+			if enabled and (not specSpells[ability] or anchor.spec and anchor.spec[ability]) then
 				self:UpdateAnchorIcon(anchor, numIcons, ability, cooldown)
 				numIcons = numIcons + 1
 			end
