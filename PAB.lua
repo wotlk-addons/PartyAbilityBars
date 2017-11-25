@@ -18,9 +18,6 @@ local GetNumPartyMembers = GetNumPartyMembers
 local CooldownFrame_SetTimer = CooldownFrame_SetTimer
 
 local SPELLIDUPPER = 60000
-local CommPrefix  = "PABx39dkes8xj" -- Receive ability and cooldown
-local CommPrefix2 = "PAB935ndd8xid" -- Send GUID for syncing
-local CommPrefix3 = "PABkd8cjnwuid" -- Receive GUID for syncing
 
 local db
 local pGUID
@@ -41,118 +38,6 @@ local function print(...)
 end
 
 local InArena = function() return (select(2,IsInInstance()) == "arena") end
-
-local _iconPaths = {}
-local iconPaths = {
-		[42292] = 120, -- PvP Trinket
-		[59752] = 120, -- Every Man for Himself
-		[71607] = 120, -- Bauble of True Blood
-		[7744] = 120,  -- Will of the Forsaken
-		-- Druid
-		[29166] = 180, -- Innervate
-		[22812] = 60,  -- Barkskin
-		[8983] = 60,   -- Bash
-		[53201] = 60,  -- Starfall
-		[50334] = 180, -- Berserk
-		[61336] = 180, -- Survival Instincts
-		[16979] = 15,  -- Feral Charge - Bear
-		[18562] = 13,  -- Swiftmend
-		[17116] = 180, -- Nature's Swiftness
-		-- Hunt
-		[19503] = 30,  -- Scatter Shot
-		[60192] = 28,  -- Freezing Arrow
-		[13809] = 28,  -- Frost Trap
-		[14311] = 28,  -- Freezing Trap
-		[19574] = 120, -- Bestial Wrath
-		[34490] = 20,  -- Silencing Shot
-		[23989] = 180, -- Readiness
-		[19263] = 90,  -- Deterrence
-		[67481] = 60,  -- Roar of Sacrifice
-		[53271] = 60,  -- Master's Call
-		[49012] = 30,  -- Wyvern Sting
-		-- Mage
-		[1953] = 15,   -- Blink
-		[2139] = 24,   -- Counterspell
-		[44572] = 30,  -- Deep Freeze
-		[12051] = 240, -- Evocation
-		[45438] = 300, -- Ice Block
-		[11958] = 384, -- Cold Snap
-		[12043] = 60,  -- Presence of Mind
-		[11129] = 120, -- Combustion
-		[42950] = 20,  -- Dragon's Breath
-		-- Pal
-		[10308] = 40,  -- Hammer of Justice
-		[10308] = 60,  -- Repentance
-		[1044] = 25,   -- Hand of Freedom
-		[54428] = 60,  -- Divine Plea
-		[31821] = 120, -- Aura Mastery
-		[64205] = 120, -- Divine Sacrifice
-		[6940] = 120,  -- Hand of Sacrifice
-		[10278] = 180, -- Hand of Protection
-		[642] = 300,   -- Divine Shield
-		[66008] = 60,  -- Repentance
-		[48825] = 5,   -- Holy Shock
-		[48827] = 30,  -- Avenger's Shield
-		-- Priest
-		[10890] = 24,  -- Psychic Scream
-		[34433] = 300, -- Shadowfiend
-		[33206] = 144, -- Pain Suppression
-		[64044] = 120, -- Psychic Horror
-		[48158] = 12,  -- Shadow World: Death
-		[15487] = 45,  -- Silence
-		[47585] = 75,  -- Dispersion
-		-- Rogue
-		[1766] = 10,   -- Kick
-		[8643] = 20,   -- Kidney Shot
-		[31224] = 60,  -- Cloak of Shadows
-		[51722] = 60,  -- Dismantle
-		[2094] = 120,  -- Blind
-		[26889] = 120, -- Vanish
-		[14185] = 300, -- Preparation
-		[51713] = 60,  -- Shadow Dance
-		[51690] = 120, -- Killing Spree
-		[14177] = 180, -- Cold Blood
-		-- Sham
-		[57994] = 6,   -- Wind Shear
-		[51514] = 45,  -- Hex
-		[16188] = 120, -- Nature's Swiftness
-		[8177] = 15,   -- Grounding Totem
-		-- Lock
-		[19647] = 24,  -- Spell Lock
-		[17925] = 120, -- Death Coil
-		[18708] = 180, -- Fel Domination
-		[48011] = 8,   -- Devour Magic
-		[48020] = 30,  -- Demonic Circle: Teleport
-		[47847] = 20,  -- Shadowfury
-		-- War
-		[6552] = 10,   -- Pummel
-		[72] = 12,     -- Shield Bash
-		[11578] = 13,  -- Charge
-		[47996] = 15,  -- Intercept
-		[46924] = 90,  -- Bladestorm
-		[871] = 300,   -- Shield Wall
-		[2565] = 60,   -- Shield Block
-		[2565] = 60,   -- Shield Block
-		[676] = 60,    -- Disarm
-		[12809] = 30,  -- Concussion Blow
-		[46968] = 17,  -- Shockwave
-		-- DK
-		[47528] = 10,  -- Mind Freeze
-		[47481] = 20,  -- Gnaw
-		[48743] = 120, -- Death Pact
-		[49206] = 180, -- Summon Gargoyle
-		[51052] = 120, -- Anti-Magic Zone
-		[49576] = 35,  -- Death Grip
-		[48707] = 45,  -- Anti-Magic Shell
-		[47476] = 120, -- Strangulate
-		[49039] = 120, -- Lichborne
-		[49203] = 60,  -- Hungering Cold
-		[51271] = 60,  -- Unbreakable Armor
-}
-for k in pairs(iconPaths) do _iconPaths[GetSpellInfo(k)] = select(3,GetSpellInfo(k)) end
-iconPaths = _iconPaths
-iconPaths[GetSpellInfo(71607)] = "Interface\\Icons\\inv_jewelcrafting_gem_28"
-iconPaths[GetSpellInfo(42292)] = "Interface\\Icons\\Inv_jewelry_trinketpvp_02"
 
 local specAbilities = {
 	["ROGUE"] = {
@@ -404,6 +289,7 @@ local defaultAbilities = {
 		[33206] = 144, -- Pain Suppression
 		[15487] = 45, -- Silence 
 		[64044] = 120, -- Psychic Horror
+		[34433] = 300, -- Shadowfiend -- TODO talent(?)
 	},
 	["ROGUE"] = {
 		[1766] = 10,   -- Kick
@@ -416,6 +302,7 @@ local defaultAbilities = {
 		[51713] = 60, -- Shadow Dance
 		[51690] = 120, -- Killing Spree
 		[14177] = 180, -- Cold Blood
+		[36554] = 20, -- Shadowstep
 	},
 	["SHAMAN"] = {
 		[57994] = 6,   -- Wind Shear
@@ -496,6 +383,13 @@ local defaultAbilities = {
 	}
 }
 
+
+local iconPaths = {}
+for k in pairs(iconPaths) do _iconPaths[GetSpellInfo(k)] = select(3,GetSpellInfo(k)) end
+iconPaths[GetSpellInfo(71607)] = "Interface\\Icons\\inv_jewelcrafting_gem_28"
+iconPaths[GetSpellInfo(42292)] = "Interface\\Icons\\Inv_jewelry_trinketpvp_02"
+
+
 -- V: added a "fillwith" parameter to fill the generated tables with a single value.
 --    "not pretty, but it works"
 local function convertspellids(t, fillwith)
@@ -503,6 +397,10 @@ local function convertspellids(t, fillwith)
 	for class,table in pairs(t) do
 		temp[class] = {}
 		for k,v in pairs(table) do
+			local spellName, _, spellIcon = GetSpellInfo(k)
+			if not iconPaths[spellName] then
+				iconPaths[spellName] = spellIcon
+			end
 			temp[class][GetSpellInfo(k)] = fillwith or v
 		end
 	end
@@ -720,6 +618,12 @@ function PAB:HideUnusedIcons(numIcons,icons)
 	end
 end
 
+function PAB:ResetAnchorsSpec()
+	for i = 1, #anchors do
+		anchors[i].spec = nil
+	end
+end
+
 function PAB:UpdateAnchors(updateIcons)
 	for i=1,GetNumPartyMembers() do
 		local _,class = UnitClass("party"..i)
@@ -809,6 +713,7 @@ function PAB:PARTY_MEMBERS_CHANGED()
 	if not pName then pName = UnitName("player") end
 	inspectData = {}
 	self:UpdateAnchors(false)
+	self:ResetAnchorsSpec()
 end
 
 function PAB:PLAYER_ENTERING_WORLD()
@@ -821,6 +726,7 @@ function PAB:PLAYER_ENTERING_WORLD()
 	if not pGUID then pGUID = UnitGUID("player") end
 	if not pName then pName = UnitName("player") end
 	self:UpdateAnchors(false)
+	self:ResetAnchorsSpec()
 end
 
 function PAB:CheckAbility(anchor,ability,cooldown,pIndex)
@@ -895,23 +801,56 @@ local function PAB_OnUpdate(self,elapsed)
 				end
 			end
 		end
-		
 		time = 0
+
+		
 	end
 
-	PAB:QuerySpecInfo()
+	-- Maybe query spec info (throttled)
+	PAB:QuerySpecInfo(elapsed)
 end
 
 local inspectData = {
 	frame = nil,
-	current = nil
+	current = nil,
+	throttle = 0,
+	lastQuery = nil
 }
 
 -- V: function called every tick that tries to query spec info
-function PAB:QuerySpecInfo()
+function PAB:QuerySpecInfo(elapsed)
+	inspectData.throttle = inspectData.throttle + elapsed
+
+	-- timeout check
+	if inspectData.lastQuery then
+		inspectData.lastQuery = inspectData.lastQuery + elapsed
+		if inspectData.lastQuery > 10 then -- we've been waiting for 10s... give up
+			inspectData.current = nil
+			inspectData.lastQuery = nil
+		end
+	end
+
+	-- throttle
+	if inspectData.throttle < 0.5 then return end
+	inspectData.throttle = 0
+
+	-- are we fighting
+	if InCombatLockdown() then return end
+	-- if we're currently awaiting an INSPECT_TALENT_READY
+	if inspectData.current then return end
+	-- are we dead
+	if UnitIsDead("player") then return end
+	-- is the player inspecting
+	if InspectFrame and InspectFrame:IsShown() then return end
+
 	if not inspectData.frame then
 		inspectData.frame = CreateFrame("Frame")
 		inspectData.frame:SetScript("OnEvent", function (self, event, ...)
+			-- are we fighting
+			if InCombatLockdown() then return end
+			-- is the player inspecting
+			if InspectFrame and InspectFrame:IsShown() then return end
+
 			if not inspectData.current then return end
 			local anchor = anchors[inspectData.current]
 			if not anchor or not anchor.class then
@@ -945,14 +884,12 @@ function PAB:QuerySpecInfo()
 		inspectData.frame:RegisterEvent("INSPECT_TALENT_READY")
 	end
 
-	-- if we're currently awaiting an INSPECT_TALENT_READY
-	if inspectData.current then return end
-
 	for i=1, GetNumPartyMembers() do
 		local anchor = anchors[i]
 		if not anchor then return end
-		if not anchor.spec and CanInspect("party"..i) then
+		if not anchor.spec and CanInspect("party"..i) and UnitIsConnected("party"..i) then
 			inspectData.current = i
+			inspectData.lastQuery = 0
 			NotifyInspect("party"..i)
 			break
 		end
@@ -1227,8 +1164,6 @@ function PAB:CreateAbilityEditor()
 	local btns = {}
 	self.btns = btns
 	local scrollframe = CreateFrame("ScrollFrame", "PABScrollFrame",panel,"FauxScrollFrameTemplate")
-	--local abilityCheckboxes = {}
-	--self.abilityCheckboxes = abilityCheckboxes
 	-- V: the setter for the toggles. Using a local to close over i.
 	local _self = self
 	local function setterFunc(i)
