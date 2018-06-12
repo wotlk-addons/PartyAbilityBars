@@ -1,6 +1,8 @@
 Improved WoTLK Party Ability Bars
 ================================
 
+By Vendethiel and Lawz. Original by Kollektiv.
+
 ### Instructions
 
 Don't forget to :
