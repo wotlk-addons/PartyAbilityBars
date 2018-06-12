@@ -1,10 +1,3 @@
--- TODO
--- Capture cooldowns from combat log and player, then set them
-
-
--- UPDATE_BATTLEFIELD_STATUS
-
-
 local lower = string.lower
 local match = string.match
 local remove = table.remove
@@ -947,7 +940,7 @@ local function PAB_OnLoad(self)
 	
 	self:SetScript("OnUpdate",PAB_OnUpdate)
 	
-	print("Party Ability Bars by Kollektiv. Enhancements by Lawz and Vendethiel. Type /pab to open options")
+	--print("Party Ability Bars by Kollektiv. Enhancements by Lawz and Vendethiel. Type /pab to open options")
 end
 
 function PAB:FindAbilityIcon(ability)
