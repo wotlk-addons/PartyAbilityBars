@@ -166,6 +166,10 @@ local specAbilities = {
 			talentGroup = 3,
 			index = 13,
 		},
+		[16166] = { -- Elemental Mastery
+			talentGroup = 1,
+			index = 16
+		},
 		[51490] = { -- Thunderstorm
 			talentGroup = 1,
 			index = 25,
@@ -305,6 +309,7 @@ local defaultAbilities = {
 		[71607] = 120, -- Bauble of True Blood
 		[51490] = 35, -- Thunderstorm (45s - 10s glyph)
 		[30823] = 60, -- Shamanistic Rage
+		[16166] = 180, -- Elemental Mastery
 	},
 	["WARLOCK"] = {
 		[19647] = 24,  -- Spell Lock
