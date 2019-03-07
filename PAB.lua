@@ -42,6 +42,10 @@ local specAbilities = {
 			talentGroup = 3,
 			index = 28,
 		},
+		[36554] = { -- Shadow Dance
+			talentGroup = 3,
+			index = 25,
+		},
 		[51690] = { -- Killing Spree
 			talentGroup = 2,
 			index = 28,
