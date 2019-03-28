@@ -13,3 +13,7 @@ Don't forget to :
 ### Notes
 
 This version adds a better configuration UI, more spells, and automatic talents detection (as well as an internal cleanup).
+
+![Imgur](https://i.imgur.com/WLFR3d3.jpg) ![Imgur](https://i.imgur.com/x6TA6LA.jpg)
+
+![Imgur](https://i.imgur.com/bmAwt9Z.jpg) ![Imgur](https://i.imgur.com/s5LyxVt.jpg)
