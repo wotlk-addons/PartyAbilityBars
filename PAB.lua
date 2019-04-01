@@ -283,7 +283,7 @@ local defaultAbilities = {
 		[48827] = 30,  -- Avenger's Shield
 	},
 	["PRIEST"] = {
-		[10890] = 24,  -- Psychic Scream
+		[10890] = 27,  -- Psychic Scream
 		[48158] = 12,  -- Shadow World: Death
 		[71607] = 120, -- Bauble of True Blood
 		[47585] = 75, -- Dispersion
