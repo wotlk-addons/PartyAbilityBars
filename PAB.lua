@@ -1123,6 +1123,8 @@ local function GetToggleText(button)
 	return _G[button:GetName().."Text"]
 end
 
+local SHOW_BUTTONS = 8
+local BUTTON_HEIGHT = 16
 function PAB:UpdateScrollBar()
 	local btns = self.btns
 	-- V: the ability store helps us map which ability we want to enable/disable
@@ -1131,32 +1133,28 @@ function PAB:UpdateScrollBar()
 	local scrollframe = self.scrollframe
 	local classSelectedTable = db.abilities[db.classSelected]
 	local classSelectedTableLength = count(db.abilities[db.classSelected])
-	FauxScrollFrame_Update(scrollframe,classSelectedTableLength,10,16,nil,nil,nil,nil,nil,nil,true);
-	local line = 1
+	-- V: PAB never *actually* implemented the FauxScrollFrame. Let's do it...
+	FauxScrollFrame_Update(scrollframe,classSelectedTableLength,SHOW_BUTTONS,BUTTON_HEIGHT,nil,nil,nil,nil,nil,nil,true)
+	local offset = FauxScrollFrame_GetOffset(scrollframe)
+	local i = 1 -- track where we are
 	for ability,cooldown in pairs(classSelectedTable) do
-		-- V: wtf is that... a global that's never used...
-		--lineplusoffset = line + FauxScrollFrame_GetOffset(scrollframe)
-		
-		-- V: check if we have it enabled...
-		local checked = db.enabledCooldowns[db.classSelected][ability]
-		btns[line]:SetChecked(checked)
+		if i > offset and (i - offset) <= SHOW_BUTTONS then
+			btns[i - offset]:Show()
+			
+			-- V: check if we have it enabled...
+			local checked = db.enabledCooldowns[db.classSelected][ability]
+			btns[i - offset]:SetChecked(checked)
 
-		local text = GetToggleText(btns[line])
-		self.abilityStore[line] = ability
-		text:SetText(ability)
-		btns[line]:Show()
-		line = line + 1
+			local text = GetToggleText(btns[i - offset])
+			self.abilityStore[i - offset] = ability
+			text:SetText(ability)
+		end
+		i = i + 1
 	end
-	for i=line,20 do
-		btns[i]:Hide()
+	-- V: hide the other buttons
+	for hideI = i - offset, SHOW_BUTTONS do
+		btns[hideI]:Hide()
 	end
-end
-
-function PAB:OnVerticalScroll(offset,itemHeight)
-	local scrollbar = _G[self.scrollframe:GetName().. "ScrollBar"]
-	scrollbar:SetValue(offset);
-	self.scrollframe.offset = floor((offset / itemHeight) + 0.5);
-	self:UpdateScrollBar()
 end
 
 function PAB:CreateAbilityEditor()
@@ -1177,8 +1175,8 @@ function PAB:CreateAbilityEditor()
 			PAB:UpdateAnchors(true)
 		end
 	end
-	-- V: let's say, 20, just 'cus I can.
-	for i=1,20 do
+	-- V: use a constant
+	for i=1,SHOW_BUTTONS do
 		local button = panel:MakeToggle(
 			'name', tostring(i),
 			'description', "Enable or disable",
@@ -1199,7 +1197,11 @@ function PAB:CreateAbilityEditor()
 	scrollframe:SetPoint('LEFT',5,-60)
 	scrollframe:SetBackdrop(backdrop)
 	scrollframe:SetBackdropColor(.6,.6,.6,0.25)
-	scrollframe:SetScript("OnVerticalScroll", function(self,offset) PAB:OnVerticalScroll(offset,16) end)
+	scrollframe:SetScript("OnVerticalScroll", function(self,offset)
+		FauxScrollFrame_OnVerticalScroll(scrollframe, offset, BUTTON_HEIGHT, function (_) -- ignore self argument
+			PAB:UpdateScrollBar()
+		end)
+	end)
 	scrollframe:SetScript("OnShow",function(self) if not db.classSelected then db.classSelected = "WARRIOR" end; PAB:UpdateScrollBar();  end)
 	
 	self.scrollframe = scrollframe
