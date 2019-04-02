@@ -291,6 +291,7 @@ local defaultAbilities = {
 		[15487] = 45, -- Silence 
 		[64044] = 120, -- Psychic Horror
 		[34433] = 300, -- Shadowfiend -- TODO talent(?)
+		[6346] = 180, -- Fear Ward
 	},
 	["ROGUE"] = {
 		[1766] = 10,   -- Kick
