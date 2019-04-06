@@ -24,9 +24,26 @@ local iconlist = {}
 local anchors = {}
 local activeGUIDS = {}
 
-local function print(...)
-	for i=1,select('#',...) do
-		ChatFrame1:AddMessage("|cff33ff99 PAB|r: " .. select(i,...))
+-- local function print(...)
+	-- for i=1,select('#',...) do
+		-- ChatFrame1:AddMessage("|cff33ff99 PAB|r: " .. select(i,...))
+	-- end
+-- end
+
+local function prt(tab,s)
+	if type(tab) == "table" then
+		if s == nil then s = "" end
+		for k,v in pairs(tab) do
+			if type(tab[k]) == "table" then
+				print(k)
+				s = s.."  " -- BUG: shouldn't be each time, but each new level of recursion
+				prt(tab[k],s)
+			else
+				print(s,k,v)
+			end
+		end
+	else
+		print(tab)
 	end
 end
 
@@ -42,7 +59,7 @@ local specAbilities = {
 			talentGroup = 3,
 			index = 28,
 		},
-		[36554] = { -- Shadow Dance
+		[36554] = { -- Shadowstep
 			talentGroup = 3,
 			index = 25,
 		},
@@ -231,6 +248,59 @@ local specAbilities = {
 	},
 }
 
+local specUpdatedCds = {
+	["ROGUE"] = {
+	},
+	["PRIEST"] = {
+		[10890] = { -- Psychic Scream
+			talentGroup = 3,
+			index = 7,
+			cd = 23,
+		},
+		[34433] = { -- Shadowfiend
+			talentGroup = 3,
+			index = 10,
+			cd = 180,
+		},
+	},
+	["DRUID"] = {
+		[8983] = { -- Shadowfiend
+			talentGroup = 2,
+			index = 13,
+			cd = 30,
+		},
+	},
+	["HUNTER"] = {
+	},
+	["MAGE"] = 	{
+		[12051] = { -- Evocation
+			talentGroup = 1,
+			index = 24,
+			cd = 120,
+		},
+	},
+	["PALADIN"] = {
+		[10308] = { -- Hammer of Justice
+			talentGroup = 2,
+			index = 10,
+			cd = 40,
+		},
+		[10308] = { -- Hammer of Justice TODO l'ajouter en exception, là ça va marcher random selon quand il est appelé dans le for... Mais osef des prots.
+			talentGroup = 2,
+			index = 25,
+			cd = 30,
+		},
+	},
+	["SHAMAN"] = {
+	},
+	["WARLOCK"] = {
+	},
+	["WARRIOR"] = {
+	},
+	["DEATHKNIGHT"] = {
+	},
+}
+
 local defaultAbilities = {
 	["DRUID"] = {
 		[29166] = 180, -- Innervate
@@ -290,7 +360,7 @@ local defaultAbilities = {
 		[33206] = 144, -- Pain Suppression
 		[15487] = 45, -- Silence 
 		[64044] = 120, -- Psychic Horror
-		[34433] = 300, -- Shadowfiend -- TODO talent(?)
+		[34433] = 300, -- Shadowfiend
 		[6346] = 180, -- Fear Ward
 	},
 	["ROGUE"] = {
@@ -383,6 +453,9 @@ local defaultAbilities = {
 	["Dwarf"] = {
 		[20594] = 120, -- Stoneform
 		[42292] = 120, -- PvP Trinket
+	},
+	["Items"] = { -- TODO un truc du genre ? Ou pas se faire chier et le traiter en exception vu que y'a pas d'autres trinkets de tte manière
+		[71607] = 120, -- bauble
 	}
 }
 
@@ -415,6 +488,7 @@ local allCooldownIds = convertspellids(defaultAbilities, true)
 
 defaultAbilities = convertspellids(defaultAbilities)
 specAbilities = convertspellids(specAbilities)
+specUpdatedCds = convertspellids(specUpdatedCds)
 
 
 local groupedCooldowns = {
@@ -878,9 +952,23 @@ function PAB:QuerySpecInfo(elapsed)
 				if not foundATalent then
 					anchor.spec = nil
 				end
-
 				PAB:UpdateAnchors(true)
 			end
+			local specUpdatedSpells = specUpdatedCds[anchor.class]
+			if specUpdatedSpells then
+				for ability, spell in pairs(specUpdatedSpells) do
+					local hasTalent = select(5,
+						GetTalentInfo(spell.talentGroup, spell.index, true, false, GetActiveTalentGroup(true))
+					) > 0
+					if hasTalent then
+						db.abilities[anchor.class][ability] = specUpdatedCds[anchor.class][ability].cd
+					end
+				end
+			end
+			local trink1 = GetItemInfo(GetInventoryItemLink("party1",13)) -- TODO
+			local trink2 = GetItemInfo(GetInventoryItemLink("party1",14)) -- TODO
+			prt(GetItemInfo(GetInventoryItemLink("party"..inspectData.current,13))) -- TODO
+			prt(name2) -- TODO
 			ClearInspectPlayer()
 			inspectData.current = nil
 		end)
@@ -1002,7 +1090,7 @@ function PAB:CreateOptions()
 		'maxText', '2',
 		'minValue', 0.5,
 		'maxValue', 2,
-		'step', 0.01,
+		'step', 0.05,
 		'default', 1,
 		'current', db.scale,
 		'setFunc', function(value) db.scale = value; PAB:ApplyAnchorSettings() end,
