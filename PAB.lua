@@ -264,7 +264,7 @@ local specUpdatedCds = {
 		},
 	},
 	["DRUID"] = {
-		[8983] = { -- Shadowfiend
+		[8983] = { -- Bash
 			talentGroup = 2,
 			index = 13,
 			cd = 30,
