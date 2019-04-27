@@ -42,7 +42,7 @@ local specAbilities = {
 			talentGroup = 3,
 			index = 28,
 		},
-		[36554] = { -- Shadow Dance
+		[36554] = { -- Shadow Step
 			talentGroup = 3,
 			index = 25,
 		},
@@ -242,7 +242,6 @@ local defaultAbilities = {
 		[16979] = 15,  -- Feral Charge - Bear
 		[18562] = 13,  -- Swiftmend
 		[17116] = 180, -- Nature's Swiftness
-		[71607] = 120, -- Bauble of True Blood ("Release of Light")
 	},
 	["HUNTER"] = {
 		[19503] = 30,  -- Scatter Shot
@@ -275,7 +274,6 @@ local defaultAbilities = {
 		[6940] = 120,  -- Hand of Sacrifice
 		[10278] = 180, -- Hand of Protection
 		[642] = 300,   -- Divine Shield
-		[71607] = 120, -- Bauble of True Blood ("Release of Light")
 		[31821] = 120, -- Aura Mastery
 		[66008] = 60,  -- Repentance
 		[64205] = 120, -- Divine Sacrifice
@@ -285,12 +283,11 @@ local defaultAbilities = {
 	["PRIEST"] = {
 		[10890] = 27,  -- Psychic Scream
 		[48158] = 12,  -- Shadow World: Death
-		[71607] = 120, -- Bauble of True Blood ("Release of Light")
 		[47585] = 75, -- Dispersion
 		[33206] = 144, -- Pain Suppression
 		[15487] = 45, -- Silence 
 		[64044] = 120, -- Psychic Horror
-		[34433] = 300, -- Shadowfiend -- TODO talent(?)
+		[34433] = 300, -- Shadowfiend
 		[6346] = 180, -- Fear Ward
 	},
 	["ROGUE"] = {
@@ -311,7 +308,6 @@ local defaultAbilities = {
 		[51514] = 45,  -- Hex
 		[16188] = 120, -- Nature's Swiftness
 		[8177] = 15,   -- Grounding Totem
-		[71607] = 120, -- Bauble of True Blood ("Release of Light")
 		[51490] = 35, -- Thunderstorm (45s - 10s glyph)
 		[30823] = 60, -- Shamanistic Rage
 		[16166] = 180, -- Elemental Mastery
@@ -349,6 +345,7 @@ local defaultAbilities = {
 		[49039] = 120, -- Lichborne
 		[49203] = 60,  -- Hungering Cold
 		[51271] = 60,  -- Unbreakable Armor
+		[48792] = 120, -- Icebound Fortitude
 	},
 	["Scourge"] = {
 		[7744] = 120, -- Will of the Forsaken
@@ -383,9 +380,15 @@ local defaultAbilities = {
 	["Dwarf"] = {
 		[20594] = 120, -- Stoneform
 		[42292] = 120, -- PvP Trinket
+	},
+	["Items"] = {
+		[71607] = 120, -- Release of Light (Bauble)
 	}
 }
 
+local itemForSpell = {
+	[GetSpellInfo(71607)] = GetItemInfo(50354), -- Bauble of True Blood
+}
 
 local iconPaths = {}
 for k in pairs(iconPaths) do _iconPaths[GetSpellInfo(k)] = select(3,GetSpellInfo(k)) end
@@ -621,21 +624,37 @@ function PAB:HideUnusedIcons(numIcons,icons)
 	end
 end
 
-function PAB:ResetAnchorsSpec()
+function PAB:ResetAnchorsSpecAndItems()
 	for i = 1, #anchors do
 		anchors[i].spec = nil
+		anchors[i].items = nil
 	end
+end
+
+-- Utils
+local function array_contains(tab, val)
+	-- V: no value given
+	if not tab then return false end
+
+    for index, value in pairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+
+    return false
 end
 
 function PAB:UpdateAnchors(updateIcons)
 	for i=1,GetNumPartyMembers() do
-		local _,class = UnitClass("party"..i)
+		local unitName = "party"..i
+		local _,class = UnitClass(unitName)
 		if not class then return end
 		local anchor = anchors[i]
-		anchor.GUID = UnitGUID("party"..i)
-		anchor.class = select(2,UnitClass("party"..i))
+		anchor.GUID = UnitGUID(unitName)
+		anchor.class = select(2,UnitClass(unitName))
 		-- uses races as well as classes, no unique combinations of class+race like "Nightelf Priest" possible tho
-		anchor.race = select(2,UnitRace("party"..i))
+		anchor.race = select(2,UnitRace(unitName))
 		if updateIcons then
 			for i = 1, #anchor.icons do
 				anchor.icons[i]:Hide()
@@ -650,6 +669,16 @@ function PAB:UpdateAnchors(updateIcons)
 			if enabled then
 				self:UpdateAnchorIcon(anchor, numIcons, ability, cooldown)
 				numIcons = numIcons + 1
+			end
+		end
+		if anchor.items then
+			for ability,cooldown in pairs(db.abilities["Items"]) do
+				local itemName = itemForSpell[ability]
+				local enabled = db.enabledCooldowns["Items"][ability]
+				if enabled and array_contains(anchor.items, itemName) then
+					self:UpdateAnchorIcon(anchor, numIcons, ability, cooldown)
+					numIcons = numIcons + 1
+				end
 			end
 		end
 		local specSpells = specAbilities[anchor.class]
@@ -711,12 +740,22 @@ function PAB:ApplyAnchorSettings()
 	if db.lock or not db.movable then PABAnchor:Hide() else PABAnchor:Show() end
 end
 
+function PAB:UPDATE_BATTLEFIELD_STATUS(idx)
+	if idx ~= 1 then return end -- only for arenas
+
+	local status = GetBattlefieldStatus(idx)
+	if status == "active" then
+		self:UpdateAnchors(false)
+		self:ResetAnchorsSpecAndItems()
+	end
+end
+
 function PAB:PARTY_MEMBERS_CHANGED()
 	if not pGUID then pGUID = UnitGUID("player") end
 	if not pName then pName = UnitName("player") end
 	inspectData = {}
 	self:UpdateAnchors(false)
-	self:ResetAnchorsSpec()
+	self:ResetAnchorsSpecAndItems()
 end
 
 function PAB:PLAYER_ENTERING_WORLD()
@@ -729,7 +768,7 @@ function PAB:PLAYER_ENTERING_WORLD()
 	if not pGUID then pGUID = UnitGUID("player") end
 	if not pName then pName = UnitName("player") end
 	self:UpdateAnchors(false)
-	self:ResetAnchorsSpec()
+	self:ResetAnchorsSpecAndItems()
 end
 
 function PAB:CheckAbility(anchor,ability,cooldown,pIndex)
@@ -740,7 +779,7 @@ function PAB:CheckAbility(anchor,ability,cooldown,pIndex)
 		-- Grouped Cooldowns
 		if groupedCooldowns[anchor.class] and groupedCooldowns[anchor.class][ability] then
 			for k in pairs(groupedCooldowns[anchor.class]) do
-				if k == icon.ability and icon.shouldShow then icon.Start(cooldown); break end
+				if k == icon.ability and icon.shouldShow then icon.Start(cooldown) break end
 			end
 		end
 		-- Cooldown resetters
@@ -753,18 +792,6 @@ function PAB:CheckAbility(anchor,ability,cooldown,pIndex)
 				icon.Stop()
 			end
 		end
-	end
-end
-
-function PAB:UNIT_SPELLCAST_SUCCEEDED(unit,ability)
-	if unit == "player" then return end
-	local pIndex = match(unit,"party[pet]*([1-4])")
-	if pIndex and ability then
-		local actualUnit = "party"..pIndex -- don't query pet
-		local _,class = UnitClass(actualUnit)
-		local _,race = UnitRace(actualUnit)
-		local cooldown = db.abilities[class][ability] or db.abilities[race][ability]
-		self:CheckAbility(anchors[tonumber(pIndex)],ability,cooldown,pIndex) 
 	end
 end
 
@@ -805,8 +832,6 @@ local function PAB_OnUpdate(self,elapsed)
 			end
 		end
 		time = 0
-
-		
 	end
 
 	-- Maybe query spec info (throttled)
@@ -861,6 +886,7 @@ function PAB:QuerySpecInfo(elapsed)
 				inspectData.current = nil
 				return
 			end
+
 			local specSpells = specAbilities[anchor.class]
 			if specSpells then
 				anchor.spec = {}
@@ -878,9 +904,18 @@ function PAB:QuerySpecInfo(elapsed)
 				if not foundATalent then
 					anchor.spec = nil
 				end
-
-				PAB:UpdateAnchors(true)
 			end
+
+			anchor.items = {}
+--			for itemSlot = 1, 18 do -- ignore tabard + bags
+			for itemSlot = 13, 14 do -- ignore tabard + bags
+				local itemID = GetInventoryItemLink("party"..inspectData.current, itemSlot)
+				if itemID then
+					anchor.items[itemSlot] = GetItemInfo(itemID)
+				end
+			end
+
+			PAB:UpdateAnchors(true)
 			ClearInspectPlayer()
 			inspectData.current = nil
 		end)
@@ -890,11 +925,49 @@ function PAB:QuerySpecInfo(elapsed)
 	for i=1, GetNumPartyMembers() do
 		local anchor = anchors[i]
 		if not anchor then return end
-		if not anchor.spec and CanInspect("party"..i) and UnitIsConnected("party"..i) then
+		if (not anchor.spec or not anchor.items) and (CanInspect("party"..i) and UnitIsConnected("party"..i)) then
 			inspectData.current = i
 			inspectData.lastQuery = 0
 			NotifyInspect("party"..i)
 			break
+		end
+	end
+end
+
+function PAB:UNIT_INVENTORY_CHANGED(unit)
+	if unit == "player" then return end
+	local pIndex = match(unit,"party[pet]*([1-4])")
+
+	if pIndex then
+		pIndex = tonumber(pIndex)
+		if not anchors[pIndex] then return end -- Should not happen
+		local anchor = anchors[pIndex]
+
+		anchor.items = nil
+	end
+end
+
+function PAB:UNIT_SPELLCAST_SUCCEEDED(unit,ability)
+	if unit == "player" then return end
+	local pIndex = match(unit,"party[pet]*([1-4])")
+
+	-- XXX this only supports the english client (supposedly)
+	if pIndex then
+		pIndex = tonumber(pIndex)
+		local actualUnit = "party"..pIndex -- don't query pet
+		if ability == "Activate Primary Spec" or ability == "Activate Secondary Spec" then
+			if not anchors[pIndex] then return end -- Should not happen
+			local anchor = anchors[pIndex]
+
+			anchor.spec = nil
+			return
+		end
+
+		if ability then
+			local _,class = UnitClass(actualUnit)
+			local _,race = UnitRace(actualUnit)
+			local cooldown = db.abilities[class][ability] or db.abilities[race][ability] or db.abilities["Items"][ability]
+			self:CheckAbility(anchors[pIndex],ability,cooldown,pIndex) 
 		end
 	end
 end
@@ -908,6 +981,7 @@ local function PAB_OnLoad(self)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED")
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	self:RegisterEvent("UNIT_INVENTORY_CHANGED")
 	self:SetScript("OnEvent",function(self,event,...) if self[event] then self[event](self,...) end end)
 	
 	PABDB = PABDB or {
@@ -939,6 +1013,13 @@ local function PAB_OnLoad(self)
 		enabledCooldowns = allCooldownIds
 	}
 	PABDB.abilities = defaultAbilities -- V: always keep ALL the abilities
+	
+	-- V: upgrade path #1
+	if not PABDB.enabledCooldowns["Items"] then
+		PABDB.enabledCooldowns["Items"] = enabledCooldowns["Items"]
+	end
+	
+
 	PABDB.xanchor = PABDB.xanchor or -88
 	PABDB.yanchor = PABDB.yanchor or 17
 	db = PABDB
@@ -1142,12 +1223,16 @@ function PAB:UpdateScrollBar()
 			btns[i - offset]:Show()
 			
 			-- V: check if we have it enabled...
+			if not db.enabledCooldowns[db.classSelected] then
+				db.enabledCooldowns[db.classSelected] = {}
+			end
+
 			local checked = db.enabledCooldowns[db.classSelected][ability]
 			btns[i - offset]:SetChecked(checked)
 
 			local text = GetToggleText(btns[i - offset])
 			self.abilityStore[i - offset] = ability
-			text:SetText(ability)
+			text:SetText(itemForSpell[ability]or ability)
 		end
 		i = i + 1
 	end
@@ -1231,6 +1316,7 @@ function PAB:CreateAbilityEditor()
 			"Gnome", "Gnome",
 			"Orc", "Orc",
 			"Troll", "Troll",
+			"Items","Items"
 		},
 		'default', 'WARRIOR',
 		'getFunc', function()
